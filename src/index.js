@@ -18,7 +18,7 @@ const SortView = {
 const todoData = [
   { label: 'Drink Coffee', important: false, id: 1, isDone: false, },
   { label: 'Make Awesome App', important: true, id: 2,isDone: false, },
-  { label: 'Have a lunch', important: false, id: 3, isDone: false, }
+  { label: 'Have a lunch', important: false, id: 3, isDone: false, },
 ];
 
 class App extends React.Component{
@@ -38,10 +38,46 @@ class App extends React.Component{
     this._onInputNewTask = this._onInputNewTask.bind(this);
     this._getRenderedTsk = this._getRenderedTsk.bind(this);
     this._onChangeFilterType = this._onChangeFilterType.bind(this);
+    this._onInportantChange = this._onInportantChange.bind(this);
+    this._onIsDoneChange = this._onIsDoneChange.bind(this);
+  }
+
+
+  _onInportantChange(id) {
+    console.log(id)
+    this.setState((state) => {
+      const index = state.todoData.findIndex(elem => id === elem.id);
+      const updatedElement = Object.assign({}, state.todoData[index], {important: !state.todoData[index].important});
+
+      const newArr =  [
+        ...state.todoData.slice(0, index), 
+        updatedElement, 
+        ...state.todoData.slice(index+1)
+      ];
+
+      return{todoData: newArr}
+    })
+    
   }
 
 
 
+  _onIsDoneChange(id) {
+    console.log(id)
+    this.setState((state) => {
+      const index = state.todoData.findIndex(elem => id === elem.id);
+      const updatedElement = Object.assign({}, state.todoData[index], {isDone: !state.todoData[index].isDone});
+
+      const newArr =  [
+        ...state.todoData.slice(0, index), 
+        updatedElement, 
+        ...state.todoData.slice(index+1)
+      ];
+
+      return{todoData: newArr}
+    })
+    
+  }
   _onInputNewTask(value){
     this.setState({newTaskText: value})
   }
@@ -95,16 +131,18 @@ class App extends React.Component{
   }
 
   render(){
-   console.log(this.state);
+    const  {todoData} = this.state
     return (
       <div className="todo-app">
-        <AppHeader toDo={1} done={2} />
+        <AppHeader toDo={todoData.slice().filter(elem => !elem.isDone).length} done={todoData.slice().filter(elem => elem.isDone).length} />
         <div className="top-panel d-flex">
           <SearchPanel onChangeInput = {this._onInputNewTask} value={this.state.newTaskText}/>
           <ItemStatusFilter filterChange = {this._onChangeFilterType}/>
         </div>
   
         <TodoList 
+        onIsDoneChange = {this._onIsDoneChange}
+        onChangeImportant = {this._onInportantChange}
         onDeleted = {this._onDelete}
         todos={this._getRenderedTsk()} />
         <AddNewItem onAddItem = { this._onAddNewTask}/>

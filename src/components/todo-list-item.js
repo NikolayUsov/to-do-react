@@ -4,32 +4,14 @@ import './todo-list-item.css';
 
 
 export default class TodoListItem  extends React.Component{
-  constructor(){
-    super()
-    this.state = {
-      done: false,
-      important: false,
-    }
-    this._onLabelClick = this._onLabelClick.bind(this)
-    this._onImportantClick = this._onImportantClick.bind(this);
-  }
-
-  _onLabelClick() {
-    this.setState((prefState) => ({done: !prefState.done}))
-  }
- 
-
-  _onImportantClick() {
-    this.setState((prefState) => ({important: !prefState.important}))
-  }
 
   render(){
-    const  { label, onDeleted,  } = this.props;
-    const { done, important} = this.state;
+    const  { label, important, isDone, onDeleted, onChangeImportant, onIsDoneChange } = this.props;
     const classNameDone = ' done'
     const classNameImportant = ' important'
     let className = 'todo-list-item';
-    if(done) {
+
+    if(isDone) {
       className = className + classNameDone;
     }
 
@@ -41,13 +23,13 @@ export default class TodoListItem  extends React.Component{
       <span className={className}>
         <span
           className = {'todo-list-item-label'}
-          onClick = {this._onLabelClick}
+          onClick = {onIsDoneChange}
           >
           {label}
         </span>
   
         <button type="button"
-                onClick = {this._onImportantClick}
+                onClick = { onChangeImportant }
                 className="btn btn-outline-success btn-sm float-right">
           <i className="fa fa-exclamation" />
         </button>
