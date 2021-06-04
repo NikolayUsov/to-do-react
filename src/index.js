@@ -26,8 +26,8 @@ class App extends React.Component{
     super()
     this.state = {
       todoData: todoData,
-      newTaskText: '',
       sortView: SortView.ALL,
+      searchPanelValue: '',
     }
 
     
@@ -40,11 +40,12 @@ class App extends React.Component{
     this._onChangeFilterType = this._onChangeFilterType.bind(this);
     this._onInportantChange = this._onInportantChange.bind(this);
     this._onIsDoneChange = this._onIsDoneChange.bind(this);
+    this._onChangeSearchPanel = this._onChangeSearchPanel.bind(this);
   }
 
 
   _onInportantChange(id) {
-    console.log(id)
+
     this.setState((state) => {
       const index = state.todoData.findIndex(elem => id === elem.id);
       const updatedElement = Object.assign({}, state.todoData[index], {important: !state.todoData[index].important});
@@ -60,10 +61,17 @@ class App extends React.Component{
     
   }
 
+  _onChangeSearchPanel(value){
+    if(!value){
+      this.setState({searchPanelValue: ''})
+      return 
+    }
 
+    this.setState({searchPanelValue: value})
+  }
 
   _onIsDoneChange(id) {
-    console.log(id)
+
     this.setState((state) => {
       const index = state.todoData.findIndex(elem => id === elem.id);
       const updatedElement = Object.assign({}, state.todoData[index], {isDone: !state.todoData[index].isDone});
@@ -78,12 +86,13 @@ class App extends React.Component{
     })
     
   }
+
   _onInputNewTask(value){
     this.setState({newTaskText: value})
   }
 
   _onDelete(id){
-    console.log(id)
+
     this.setState(({ todoData }) => {
       const idx = todoData.findIndex(elem => elem.id === id);
       const newArr = [
@@ -96,14 +105,14 @@ class App extends React.Component{
     
   }
 
-  _onAddNewTask(){
-    if(!this.state.newTaskText){
+  _onAddNewTask(newLabel){
+    if(!newLabel){
       return
     }
 
     this.setState(({ todoData }) => {
       const newTask = {
-        label: this.state.newTaskText,
+        label: newLabel,
         id: todoData.length+1,
         import: false,
         isDone: false,
@@ -116,17 +125,29 @@ class App extends React.Component{
 
   _getRenderedTsk(){
    const  {todoData} = this.state
+   let renderedTask = [];
     switch(this.state.sortView){
       case SortView.DONE:
-        return todoData.slice().filter(elem => elem.isDone)
+        renderedTask = todoData.slice().filter(elem => elem.isDone);
+        break
       case SortView.ACTIVE:
-        return todoData.slice().filter(elem => !elem.isDone); 
-      
-      default: return todoData.slice();
+        renderedTask =  todoData.slice().filter(elem => !elem.isDone); 
+        break     
+      default: renderedTask = todoData.slice();
     }
+
+    console.log(renderedTask, 'rendered')
+
+    if(this.state.searchPanelValue){
+      console.log('сортировка по буквам',renderedTask.slice().filter((elem) =>{return elem.label.startsWith(this.state.searchPanelValue)}))
+      return renderedTask.slice().filter((elem) =>{return elem.label.startsWith(this.state.searchPanelValue)})
+    }
+
+    return renderedTask
 }
 
   _onChangeFilterType(type){
+    type = !this.state.searchPanelValue ? type : SortView.BY_TEXT ;
     this.setState({sortView: type})
   }
 
@@ -136,7 +157,7 @@ class App extends React.Component{
       <div className="todo-app">
         <AppHeader toDo={todoData.slice().filter(elem => !elem.isDone).length} done={todoData.slice().filter(elem => elem.isDone).length} />
         <div className="top-panel d-flex">
-          <SearchPanel onChangeInput = {this._onInputNewTask} value={this.state.newTaskText}/>
+          <SearchPanel changeValue = {this._onChangeSearchPanel}/>
           <ItemStatusFilter filterChange = {this._onChangeFilterType}/>
         </div>
   
@@ -145,7 +166,7 @@ class App extends React.Component{
         onChangeImportant = {this._onInportantChange}
         onDeleted = {this._onDelete}
         todos={this._getRenderedTsk()} />
-        <AddNewItem onAddItem = { this._onAddNewTask}/>
+        <AddNewItem onLabelChange={this._onInputNewTask} onAddItem = { this._onAddNewTask}/>
       </div>
   
     );

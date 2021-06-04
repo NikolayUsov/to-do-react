@@ -10,9 +10,7 @@ const SortView = {
 }
 
 export default class ItemStatusFilter extends React.Component{
-  constructor(){
-    super()
-  }
+
   render() {
     const { filterChange } = this.props
     return (
